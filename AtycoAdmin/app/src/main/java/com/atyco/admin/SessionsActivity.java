@@ -2,13 +2,13 @@ package com.atyco.admin;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color; // مهم
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View; // مهم
-import android.view.ViewGroup; // مهم
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView; // مهم
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
@@ -30,16 +30,16 @@ public class SessionsActivity extends AppCompatActivity {
             cursor.close();
         }
 
-        // تعديل الـ Adapter لتغيير لون النص
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, sessions) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView text = (TextView) view.findViewById(android.R.id.text1);
 
-                // تغيير اللون للأسود
+
                 text.setTextColor(Color.BLACK);
-                text.setTextSize(18); // كبرنا الخط شوية عشان يبقى أوضح للمعلم
+                text.setTextSize(18);
                 return view;
             }
         };

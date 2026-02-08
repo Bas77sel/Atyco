@@ -33,8 +33,10 @@
     <ListView
         android:id="@+id/listViewRecords"
         android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:divider="#000000"
         android:dividerHeight="1dp"
         android:padding="10dp"
-        android:layout_height="match_parent" />
+        android:scrollbars="vertical" />
 </LinearLayout>

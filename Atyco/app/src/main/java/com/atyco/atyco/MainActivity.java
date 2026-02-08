@@ -1,11 +1,11 @@
 package com.atyco.atyco;
 
 import android.content.Intent;
-import android.content.SharedPreferences; // ضيف الـ Import ده
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.Button;
-import android.widget.EditText; // ضيف الـ Import ده
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         etStudentName = findViewById(R.id.etStudentName);
         btnScan = findViewById(R.id.btnScan);
 
-        // إعداد الـ SharedPreferences
+
         sharedPreferences = getSharedPreferences("StudentPrefs", MODE_PRIVATE);
         String savedName = sharedPreferences.getString("student_name", "");
         etStudentName.setText(savedName);
@@ -41,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
             if (name.isEmpty()) {
                 Toast.makeText(this, "من فضلك اكتب اسمك أولاً", Toast.LENGTH_SHORT).show();
             } else {
-                // حفظ الاسم محلياً
+
                 sharedPreferences.edit().putString("student_name", name).apply();
 
-                // تشغيل الكاميرا
+
                 startScanner();
             }
         });
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
         integrator.setPrompt("امسح كود المعلم لتسجيل الحضور");
-        integrator.setOrientationLocked(false); // عشان يفتح بالطول زي ما ظبطنا المانيفست
+        integrator.setOrientationLocked(false);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
@@ -84,13 +84,13 @@ public class MainActivity extends AppCompatActivity {
                 String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
                 String studentName = etStudentName.getText().toString().trim();
 
-                // دمج البيانات بعلامة | عشان المعلم يفصلهم بـ split
+
                 String payload = deviceId + "|" + studentName;
 
                 Socket socket = new Socket(ip, port);
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-                // إرسال البيانات المدمجة
+
                 out.println(payload);
 
                 out.close();

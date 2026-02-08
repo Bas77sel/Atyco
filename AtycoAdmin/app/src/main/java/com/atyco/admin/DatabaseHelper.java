@@ -18,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE Students (DEVICE_ID TEXT PRIMARY KEY, STUDENT_NAME TEXT)");
         db.execSQL("CREATE TABLE Attendance (DEVICE_ID TEXT, SESSION_NAME TEXT, TIME_STAMP TEXT)");
-        // إضافة جدول سجل التزوير
+
         db.execSQL("CREATE TABLE Fraud_Log (DEVICE_ID TEXT, ORIGINAL_NAME TEXT, FAKE_NAME TEXT, TIME_STAMP TEXT)");
     }
 
@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // دوال التحقق والتسجيل (كما هي مع إضافة دالة لحفظ التزوير)
+
     public String checkOrRegisterStudent(String devId, String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery("SELECT STUDENT_NAME FROM Students WHERE DEVICE_ID = ?", new String[]{devId});
@@ -71,7 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert("Fraud_Log", null, cv);
     }
 
-    // دوال جلب البيانات المنظمة
+
     public Cursor getUniqueSessions() {
         return getWritableDatabase().rawQuery("SELECT DISTINCT SESSION_NAME FROM Attendance", null);
     }

@@ -2,14 +2,14 @@ package com.atyco.admin;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color; // مهم لتغيير اللون
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View; // مهم للتحكم في العناصر
-import android.view.ViewGroup; // مهم للتحكم في العناصر
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView; // مهم للوصول للنص
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,15 +22,15 @@ public class RecordsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_records);
 
-        // 1. تعريف العناصر والداتابيز
+
         ListView listView = findViewById(R.id.listViewRecords);
         DatabaseHelper myDb = new DatabaseHelper(this);
         ArrayList<String> recordsList = new ArrayList<>();
 
-        // 2. استقبال اسم الحصة
+
         String sessionName = getIntent().getStringExtra("SESSION_NAME");
 
-        // 3. جلب البيانات
+
         Cursor res = myDb.getStudentsBySession(sessionName);
 
         if (res.getCount() == 0) {
@@ -44,14 +44,14 @@ public class RecordsActivity extends AppCompatActivity {
         }
         res.close();
 
-        // 4. تعديل الـ Adapter لتغيير لون النص للأسود
+
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, recordsList) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 TextView text = (TextView) view.findViewById(android.R.id.text1);
 
-                // تلوين النص باللون الأسود وحجم خط مريح للعين
+
                 text.setTextColor(Color.BLACK);
                 text.setTextSize(16);
                 return view;
@@ -62,7 +62,7 @@ public class RecordsActivity extends AppCompatActivity {
 
         Button btnExport = findViewById(R.id.btnExport);
         btnExport.setOnClickListener(v -> {
-            // استدعاء دالة التصدير اللي شرحناها وإرسال اسم الحصة لها
+
             exportToExcel(sessionName);
         });
     }
@@ -75,11 +75,11 @@ public class RecordsActivity extends AppCompatActivity {
             return;
         }
 
-        // بناء ملف الإكسيل باستخدام جداول HTML (متوافق تماماً مع إكسيل)
+
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<html><head><meta charset=\"UTF-8\"></head><body><table border='1'>");
 
-        // صف العناوين ملون
+
         htmlContent.append("<tr style='background-color:#2196F3; color:white;'>")
                 .append("<th>Student Name</th>")
                 .append("<th>Attendance Time</th>")
@@ -95,7 +95,7 @@ public class RecordsActivity extends AppCompatActivity {
         res.close();
 
         try {
-            // اسم الملف
+
             String fileName = "Attendance_" + sessionName + ".xls";
             java.io.File fileLocation = new java.io.File(getExternalFilesDir(null), fileName);
 
@@ -103,7 +103,7 @@ public class RecordsActivity extends AppCompatActivity {
             out.write(htmlContent.toString().getBytes("UTF-8"));
             out.close();
 
-            // كود المشاركة الاحترافي
+
             android.net.Uri path = androidx.core.content.FileProvider.getUriForFile(this,
                     "com.atyco.admin.fileprovider", fileLocation);
 

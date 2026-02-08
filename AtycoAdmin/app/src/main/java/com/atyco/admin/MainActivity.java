@@ -35,11 +35,11 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvIpAddress;
     private ImageView ivQrCode;
     private Button btnGenerate, btnStop;
-    private EditText etSessionName; // خانة اسم الحصة
+    private EditText etSessionName;
 
     private ServerSocket serverSocket;
     private boolean isServerRunning = false;
-    private DatabaseHelper myDb; // تعريف الداتابيز
+    private DatabaseHelper myDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +47,14 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // ربط العناصر بالـ XML
+
         tvIpAddress = findViewById(R.id.tvIpAddress);
         ivQrCode = findViewById(R.id.ivQrCode);
         btnGenerate = findViewById(R.id.btnGenerate);
         btnStop = findViewById(R.id.btnStop);
         etSessionName = findViewById(R.id.etSessionName);
 
-        // تهيئة الداتابيز
+
         myDb = new DatabaseHelper(this);
 
         btnStop.setOnClickListener(v -> stopServer());
@@ -94,12 +94,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        // زرار الحصص
+
         findViewById(R.id.btnViewSessions).setOnClickListener(v -> {
             startActivity(new Intent(this, SessionsActivity.class));
         });
 
-// زرار سجل التزوير
+
         findViewById(R.id.btnViewFraud).setOnClickListener(v -> {
             startActivity(new Intent(this, FraudActivity.class));
         });
@@ -178,19 +178,19 @@ public class MainActivity extends AppCompatActivity {
                         String receivedName = data[1];
                         String currentSession = etSessionName.getText().toString().trim();
 
-                        // 1. التحقق من قاعدة البيانات
+
                         String registeredName = myDb.checkOrRegisterStudent(receivedId, receivedName);
 
                         if (registeredName.equals(receivedName)) {
-                            // 2. تسجيل الحضور
+
                             String time = java.text.DateFormat.getTimeInstance().format(new java.util.Date());
                             myDb.markAttendance(receivedId, currentSession, time);
 
                             runOnUiThread(() -> Toast.makeText(this, "تم تسجيل: " + registeredName, Toast.LENGTH_SHORT).show());
                         } else {
-                            // كود الحفظ في سجل التزوير
+
                                 String time = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
-                                myDb.logFraud(receivedId, registeredName, receivedName, time); // حفظ في سجل التزوير
+                                myDb.logFraud(receivedId, registeredName, receivedName, time);
                                 showSecurityWarning(receivedId, registeredName, receivedName);
 
                         }

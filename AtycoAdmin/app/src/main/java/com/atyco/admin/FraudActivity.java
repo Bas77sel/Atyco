@@ -1,13 +1,13 @@
 package com.atyco.admin;
 
 import android.database.Cursor;
-import android.graphics.Color; // ضيف ده
+import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View; // ضيف ده
-import android.view.ViewGroup; // ضيف ده
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView; // ضيف ده
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
@@ -34,16 +34,16 @@ public class FraudActivity extends AppCompatActivity {
                 fraudList.add("لا توجد محاولات تلاعب حالياً");
             }
 
-            // تعديل الـ Adapter لتغيير اللون
+
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, fraudList) {
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = super.getView(position, convertView, parent);
                     TextView text = (TextView) view.findViewById(android.R.id.text1);
 
-                    // تغيير اللون للأسود الصريح
+
                     text.setTextColor(Color.BLACK);
-                    text.setTextSize(16); // اختياري لتوضيح الخط
+                    text.setTextSize(16);
                     return view;
                 }
             };
