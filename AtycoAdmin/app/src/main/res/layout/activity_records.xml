@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="سجل الحضور"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="20dp"
+        android:textColor="#2196F3"
+        android:paddingTop="50dp"/>
+
+    <Button
+        android:id="@+id/btnExport"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Export (Excel)"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#4CAF50"
+        android:layout_marginBottom="10dp"
+        android:drawableLeft="@android:drawable/ic_menu_share"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"/>
+
+    <ListView
+        android:id="@+id/listViewRecords"
+        android:layout_width="match_parent"
+        android:divider="#000000"
+        android:dividerHeight="1dp"
+        android:padding="10dp"
+        android:layout_height="match_parent" />
+</LinearLayout>
