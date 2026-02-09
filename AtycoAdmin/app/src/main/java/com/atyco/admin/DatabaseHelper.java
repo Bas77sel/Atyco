@@ -18,7 +18,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE Students (DEVICE_ID TEXT PRIMARY KEY, STUDENT_NAME TEXT)");
         db.execSQL("CREATE TABLE Attendance (DEVICE_ID TEXT, SESSION_NAME TEXT, TIME_STAMP TEXT)");
-
         db.execSQL("CREATE TABLE Fraud_Log (DEVICE_ID TEXT, ORIGINAL_NAME TEXT, FAKE_NAME TEXT, TIME_STAMP TEXT)");
     }
 

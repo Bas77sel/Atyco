@@ -38,13 +38,15 @@ public class MainActivity extends AppCompatActivity {
 
         btnScan.setOnClickListener(v -> {
             String name = etStudentName.getText().toString().trim();
+
             if (name.isEmpty()) {
-                Toast.makeText(this, "من فضلك اكتب اسمك أولاً", Toast.LENGTH_SHORT).show();
+                etStudentName.setError("من فضلك اكتب اسمك أولاً");
+            } else if (!isArabic(name)) {
+
+                etStudentName.setError("يجب كتابة الاسم باللغة العربية فقط");
             } else {
 
                 sharedPreferences.edit().putString("student_name", name).apply();
-
-
                 startScanner();
             }
         });
@@ -107,5 +109,10 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+    public boolean isArabic(String text) {
+
+        String arabicPattern = "^[\\u0621-\\u064A\\s]+$";
+        return text.matches(arabicPattern);
     }
 }
