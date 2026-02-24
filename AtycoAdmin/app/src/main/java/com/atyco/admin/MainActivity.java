@@ -23,6 +23,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private ServerSocket serverSocket;
     private boolean isServerRunning = false;
     private DatabaseHelper myDb;
+    private String activeSessionName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +68,18 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+
+            activeSessionName = session;
+            etSessionName.setEnabled(false);
+
             String ip = getIPAddress();
             if (!ip.equals("0.0.0.0")) {
                 tvIpAddress.setText("IP Address: " + ip);
                 generateQRCode(ip + ":8080");
                 startServer();
-                Toast.makeText(this, "بدأت الجلسة: " + session, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "بدأت الجلسة: " + activeSessionName, Toast.LENGTH_SHORT).show();
             } else {
+                etSessionName.setEnabled(true);
                 tvIpAddress.setText("خطأ: تأكد من فتح الـ Hotspot");
             }
         });
@@ -103,6 +110,24 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnViewFraud).setOnClickListener(v -> {
             startActivity(new Intent(this, FraudActivity.class));
         });
+
+        String newSession = getIntent().getStringExtra("NEW_SESSION_NAME");
+        String oldSession = getIntent().getStringExtra("REGENERATE_SESSION");
+
+
+        String targetSession = (newSession != null) ? newSession : oldSession;
+
+        if (targetSession != null) {
+
+            etSessionName.setText(targetSession);
+
+
+            new android.os.Handler().postDelayed(() -> {
+                if (!isServerRunning) {
+                    btnGenerate.performClick();
+                }
+            }, 600);
+        }
     }
 
     public String getIPAddress() {
@@ -141,6 +166,11 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     ivQrCode.setImageBitmap(null);
                     tvIpAddress.setText("IP Address: Stopped");
+
+
+                    etSessionName.setEnabled(true);
+                    activeSessionName = "";
+
                     Toast.makeText(this, "تم إيقاف الاستقبال", Toast.LENGTH_SHORT).show();
                 });
             } catch (Exception e) { e.printStackTrace(); }
@@ -149,16 +179,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void showSecurityWarning(String devId, String originalName, String fakeName) {
         runOnUiThread(() -> {
-            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            if (v != null) v.vibrate(1000);
 
-            new AlertDialog.Builder(this)
-                    .setTitle("⚠️ تحذير: محاولة تلاعب!")
-                    .setMessage("هذا الجهاز مسجل مسبقاً باسم: " + originalName + "\n\n" +
-                            "يحاول الآن الدخول باسم: " + fakeName)
-                    .setPositiveButton("إغلاق", null)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            if (v != null) {
+                v.vibrate(500);
+            }
+
+
+            String message = "⚠️ محاولة تلاعب: " + originalName + " دخل باسم " + fakeName;
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         });
     }
 
@@ -167,16 +196,19 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 serverSocket = new ServerSocket(8080);
+                serverSocket.setReuseAddress(true);
                 while (isServerRunning) {
                     Socket clientSocket = serverSocket.accept();
+
                     BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+
                     String payload = input.readLine();
 
                     if (payload != null && payload.contains("|")) {
                         String[] data = payload.split("\\|");
                         String receivedId = data[0];
                         String receivedName = data[1];
-                        String currentSession = etSessionName.getText().toString().trim();
 
 
                         String registeredName = myDb.checkOrRegisterStudent(receivedId, receivedName);
@@ -184,17 +216,20 @@ public class MainActivity extends AppCompatActivity {
                         if (registeredName.equals(receivedName)) {
 
                             String time = java.text.DateFormat.getTimeInstance().format(new java.util.Date());
-                            myDb.markAttendance(receivedId, currentSession, time);
+                            myDb.markAttendance(receivedId, activeSessionName, time);
 
-                            runOnUiThread(() -> Toast.makeText(this, "تم تسجيل: " + registeredName, Toast.LENGTH_SHORT).show());
+
+                            output.println("SUCCESS");
+                            runOnUiThread(() -> Toast.makeText(this, "✅ تم تسجيل: " + registeredName, Toast.LENGTH_SHORT).show());
                         } else {
 
-                                String time = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
-                                myDb.logFraud(receivedId, registeredName, receivedName, time);
-                                showSecurityWarning(receivedId, registeredName, receivedName);
-
+                            output.println("FRAUD_DETECTED");
+                            String time = java.text.DateFormat.getDateTimeInstance().format(new java.util.Date());
+                            myDb.logFraud(receivedId, registeredName, receivedName, time);
+                            showSecurityWarning(receivedId, registeredName, receivedName);
                         }
                     }
+                    Thread.sleep(100);
                     clientSocket.close();
                 }
             } catch (Exception e) {
