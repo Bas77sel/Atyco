@@ -17,6 +17,15 @@
         android:textColor="#F50501"
         android:layout_marginBottom="15dp"/>
 
+    <Button
+        android:id="@+id/btnClearFraud"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="مسح سجل التلاعب"
+        android:backgroundTint="#F44336"
+        android:textColor="#FFFFFF"
+        android:layout_margin="10dp" />
+
     <ListView
         android:id="@+id/lvFraud"
         android:layout_width="match_parent"

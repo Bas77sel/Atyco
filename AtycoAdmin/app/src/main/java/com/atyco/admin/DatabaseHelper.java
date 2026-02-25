@@ -9,16 +9,26 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "AtycoAdmin.db";
+    private static final int DATABASE_VERSION = 2; // تأكد إنها 2
 
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, 1);
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE Students (DEVICE_ID TEXT PRIMARY KEY, STUDENT_NAME TEXT)");
-        db.execSQL("CREATE TABLE Attendance (DEVICE_ID TEXT, SESSION_NAME TEXT, TIME_STAMP TEXT)");
-        db.execSQL("CREATE TABLE Fraud_Log (DEVICE_ID TEXT, ORIGINAL_NAME TEXT, FAKE_NAME TEXT, TIME_STAMP TEXT)");
+
+        db.execSQL("CREATE TABLE Attendance (" +
+                "ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "DEVICE_ID TEXT, " + // خليناها DEVICE_ID عشان تمشي مع باقي الكود
+                "STUDENT_NAME TEXT, " +
+                "SESSION_NAME TEXT, " +
+                "TIME_STAMP TEXT)");
+
+        db.execSQL("CREATE TABLE Fraud_Log (DEVICE_ID TEXT, ORIGINAL_NAME TEXT, FAKE_NAME TEXT, SESSION_NAME TEXT)");
+
+        db.execSQL("CREATE TABLE Sessions (SESSION_NAME TEXT PRIMARY KEY, CREATED_AT TEXT)");
     }
 
     @Override
@@ -26,9 +36,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS Students");
         db.execSQL("DROP TABLE IF EXISTS Attendance");
         db.execSQL("DROP TABLE IF EXISTS Fraud_Log");
+        db.execSQL("DROP TABLE IF EXISTS Sessions");
         onCreate(db);
     }
 
+    // --- دالة تسجيل الحضور (تم تعديلها لإضافة الاسم) ---
+    public void markAttendance(String devId, String session, String time) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // أولاً: نجيب اسم الطالب المسجل عندنا في جدول Students بناءً على الـ ID بتاعه
+        String studentName = "Unknown";
+        Cursor nameCursor = db.rawQuery("SELECT STUDENT_NAME FROM Students WHERE DEVICE_ID = ?", new String[]{devId});
+        if (nameCursor.moveToFirst()) {
+            studentName = nameCursor.getString(0);
+        }
+        nameCursor.close();
+
+        // ثانياً: نتأكد إنه مسجلش في الحصة دي قبل كدة
+        Cursor cursor = db.rawQuery("SELECT * FROM Attendance WHERE DEVICE_ID = ? AND SESSION_NAME = ?", new String[]{devId, session});
+
+        if (cursor.getCount() == 0) {
+            ContentValues cv = new ContentValues();
+            cv.put("DEVICE_ID", devId);
+            cv.put("STUDENT_NAME", studentName); // السطر ده هو اللي كان ناقص وبيخلي القائمة فاضية
+            cv.put("SESSION_NAME", session);
+            cv.put("TIME_STAMP", time);
+            db.insert("Attendance", null, cv);
+        }
+        cursor.close();
+    }
 
     public String checkOrRegisterStudent(String devId, String name) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -47,41 +83,47 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void markAttendance(String devId, String session, String time) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM Attendance WHERE DEVICE_ID = ? AND SESSION_NAME = ?", new String[]{devId, session});
-        if (cursor.getCount() == 0) {
-            ContentValues cv = new ContentValues();
-            cv.put("DEVICE_ID", devId);
-            cv.put("SESSION_NAME", session);
-            cv.put("TIME_STAMP", time);
-            db.insert("Attendance", null, cv);
-        }
-        cursor.close();
+    public Cursor getStudentsBySession(String session) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        // بنسحب الاسم والوقت والـ ID عشان الـ ListView
+        return db.rawQuery("SELECT ID AS _id, STUDENT_NAME, TIME_STAMP FROM Attendance WHERE SESSION_NAME = ?", new String[]{session});
     }
 
-    public void logFraud(String devId, String originalName, String fakeName, String time) {
+    // --- باقي الدوال كما هي ---
+    public void createNewSession(String sessionName, String date) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("SESSION_NAME", sessionName);
+        values.put("CREATED_AT", date);
+        db.insertWithOnConflict("Sessions", null, values, SQLiteDatabase.CONFLICT_IGNORE);
+    }
+
+    public Cursor getAllSessions() {
+        return getReadableDatabase().rawQuery("SELECT rowid AS _id, SESSION_NAME, CREATED_AT FROM Sessions ORDER BY rowid DESC", null);
+    }
+
+    public void deleteSession(String sessionName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete("Attendance", "SESSION_NAME = ?", new String[]{sessionName});
+        db.delete("Sessions", "SESSION_NAME = ?", new String[]{sessionName});
+    }
+
+    public void logFraud(String devId, String originalName, String fakeName, String sessionName) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("DEVICE_ID", devId);
         cv.put("ORIGINAL_NAME", originalName);
         cv.put("FAKE_NAME", fakeName);
-        cv.put("TIME_STAMP", time);
+        cv.put("SESSION_NAME", sessionName);
         db.insert("Fraud_Log", null, cv);
     }
 
-
-    public Cursor getUniqueSessions() {
-        return getWritableDatabase().rawQuery("SELECT DISTINCT SESSION_NAME FROM Attendance", null);
-    }
-
-    public Cursor getStudentsBySession(String sessionName) {
-        return getWritableDatabase().rawQuery("SELECT Students.STUDENT_NAME, Attendance.TIME_STAMP " +
-                "FROM Attendance INNER JOIN Students ON Attendance.DEVICE_ID = Students.DEVICE_ID " +
-                "WHERE Attendance.SESSION_NAME = ?", new String[]{sessionName});
-    }
-
     public Cursor getFraudLog() {
-        return getWritableDatabase().rawQuery("SELECT * FROM Fraud_Log", null);
+        return getReadableDatabase().rawQuery("SELECT rowid AS _id, * FROM Fraud_Log ORDER BY rowid DESC", null);
+    }
+
+    public void clearFraudLog() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM Fraud_Log");
     }
 }

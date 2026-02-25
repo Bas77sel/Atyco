@@ -1,42 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#FFFFFF">
+    android:padding="30dp"
+    android:background="#F8F9FA">
 
     <TextView
+        android:id="@+id/tvSessionTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="سجل الحضور"
-        android:textSize="24sp"
+        android:text="اسم الحصة"
+        android:textSize="22sp"
         android:textStyle="bold"
         android:gravity="center"
-        android:layout_marginBottom="20dp"
-        android:textColor="#2196F3"
-        android:paddingTop="50dp"/>
+        android:textColor="#212121"
+        android:layout_marginBottom="10dp"/>
 
-    <Button
-        android:id="@+id/btnExport"
+    <ImageView
+        android:id="@+id/ivQrCode"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:layout_gravity="center"
+        android:background="#FFFFFF"
+        android:padding="10dp"
+        android:elevation="4dp" />
+    <TextView
+        android:id="@+id/tvIpAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="Export (Excel)"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="15dp">
+
+        <Button
+            android:id="@+id/btnStartServer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate QR"
+            android:backgroundTint="#4CAF50"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnStopServer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stop"
+            android:backgroundTint="#F44336"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="8dp" />
+
+
+    </LinearLayout>
+    <Button
+        android:id="@+id/btnExportExcel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Export as Excel Sheet"
+        android:backgroundTint="#2196F3"
         android:textColor="#FFFFFF"
-        android:backgroundTint="#4CAF50"
-        android:layout_marginBottom="10dp"
-        android:drawableLeft="@android:drawable/ic_menu_share"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"/>
+        android:layout_marginStart="60dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#DDDDDD"
+        android:layout_marginVertical="15dp"/>
 
     <ListView
-        android:id="@+id/listViewRecords"
+        android:id="@+id/listViewAttendance"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:divider="#000000"
-        android:dividerHeight="1dp"
-        android:padding="10dp"
-        android:scrollbars="vertical" />
+        android:dividerHeight="1dp"/>
+
 </LinearLayout>
