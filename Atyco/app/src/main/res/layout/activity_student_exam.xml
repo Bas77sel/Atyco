@@ -1,10 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".StudentExamActivity">
+    android:padding="20dp"
+    android:background="#F5F5F5"> <TextView
+    android:id="@+id/tvQuestionNumber"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="السؤال 1 من 0"
+    android:textColor="#000000"
+    android:textSize="16sp"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="10dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:id="@+id/questionCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvQuestionNumber"
+        android:layout_marginTop="20dp"
+        android:background="@android:drawable/dialog_holo_light_frame"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvStudentQuestion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="جاري تحميل السؤال..."
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <RadioGroup
+        android:id="@+id/rgStudentOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/questionCard"
+        android:layout_marginTop="30dp"
+        android:padding="10dp">
+
+        <RadioButton
+            android:id="@+id/rbOpA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="الاختيار A"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:padding="12dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:drawable/btn_default"/>
+
+        <RadioButton
+            android:id="@+id/rbOpB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="الاختيار B"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:padding="12dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:drawable/btn_default"/>
+
+        <RadioButton
+            android:id="@+id/rbOpC"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="الاختيار C"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:padding="12dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:drawable/btn_default"/>
+
+        <RadioButton
+            android:id="@+id/rbOpD"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="الاختيار D"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:padding="12dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:drawable/btn_default"/>
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/btnPrev"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="السابق"
+            android:layout_marginEnd="10dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:elevation="4dp"/>
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:text="التالي"
+            android:layout_marginStart="10dp"
+            android:backgroundTint="#2196F3"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:elevation="4dp"/>
+    </LinearLayout>
+
+</RelativeLayout>
