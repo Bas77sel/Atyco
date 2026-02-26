@@ -176,4 +176,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("TOTAL_QUESTIONS", total);
         db.insert("Exam_Results", null, cv);
     }
+    public String getExamJson(String sessionName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM Questions WHERE SESSION_NAME = ?", new String[]{sessionName});
+
+        StringBuilder sb = new StringBuilder();
+        while (cursor.moveToNext()) {
+
+            sb.append(cursor.getString(cursor.getColumnIndexOrThrow("QUESTION_TEXT"))).append(":::")
+                    .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_A"))).append(":::")
+                    .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_B"))).append(":::")
+                    .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_C"))).append(":::")
+                    .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_D"))).append("###"); // فاصل بين الأسئلة
+        }
+        cursor.close();
+        return sb.toString();
+    }
+
+    public boolean hasExam(String sessionName) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT 1 FROM Questions WHERE SESSION_NAME = ? LIMIT 1", new String[]{sessionName});
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return exists;
+    }
 }

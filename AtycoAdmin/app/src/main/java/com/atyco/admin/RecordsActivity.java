@@ -1,12 +1,14 @@
 package com.atyco.admin;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -62,6 +64,34 @@ public class RecordsActivity extends AppCompatActivity {
         findViewById(R.id.btnStartServer).setOnClickListener(v -> startServer());
         findViewById(R.id.btnStopServer).setOnClickListener(v -> stopServer());
         findViewById(R.id.btnExportExcel).setOnClickListener(v -> exportToExcel());
+        Button btnAddExam = findViewById(R.id.btnAddExam);
+
+        btnAddExam.setOnClickListener(v -> {
+            Intent intent = new Intent(RecordsActivity.this, AddExamActivity.class);
+
+            intent.putExtra("SESSION_NAME", sessionName);
+            startActivity(intent);
+        });
+
+    }
+    private void checkExamStatus() {
+        TextView tvExamStatus = findViewById(R.id.tvExamStatus);
+        Button btnAddExam = findViewById(R.id.btnAddExam);
+
+        if (myDb.hasExam(sessionName)) {
+            tvExamStatus.setVisibility(View.VISIBLE);
+            btnAddExam.setText("Modify or Add Questions");
+        } else {
+            tvExamStatus.setVisibility(View.GONE);
+            btnAddExam.setText("Add Exam");
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkExamStatus();
     }
 
     private void setupAttendanceList() {
@@ -103,7 +133,6 @@ public class RecordsActivity extends AppCompatActivity {
     }
 
     private void startServer() {
-
         if (isServerRunning) {
             stopServer();
         }
@@ -114,12 +143,10 @@ public class RecordsActivity extends AppCompatActivity {
         tvIpAddress.setText("IP: " + ip);
         generateQRCode(ip + ":8080");
 
-
         final String currentSessionName = this.sessionName;
 
         new Thread(() -> {
             try {
-
                 if (serverSocket != null && !serverSocket.isClosed()) {
                     serverSocket.close();
                 }
@@ -130,7 +157,6 @@ public class RecordsActivity extends AppCompatActivity {
                 while (isServerRunning) {
                     try {
                         Socket clientSocket = serverSocket.accept();
-
 
                         new Thread(() -> {
                             try {
@@ -144,21 +170,28 @@ public class RecordsActivity extends AppCompatActivity {
                                     String receivedId = data[0];
                                     String receivedName = data[1];
 
-
                                     String registeredName = myDb.checkOrRegisterStudent(receivedId, receivedName);
 
                                     if (registeredName.equals(receivedName)) {
-
                                         String time = new java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(new java.util.Date());
                                         myDb.markAttendance(receivedId, currentSessionName, time);
 
-                                        output.println("SUCCESS");
+
+                                        String examData = myDb.getExamJson(currentSessionName);
+                                        if (examData != null && !examData.isEmpty()) {
+
+                                            output.println("EXAM|" + examData);
+                                        } else {
+
+                                            output.println("SUCCESS");
+                                        }
+
+
                                         runOnUiThread(() -> {
                                             Toast.makeText(this, "✅ تم تسجيل: " + registeredName, Toast.LENGTH_SHORT).show();
                                             refreshList();
                                         });
                                     } else {
-
                                         output.println("FRAUD_DETECTED");
                                         myDb.logFraud(receivedId, registeredName, receivedName, currentSessionName);
                                         showSecurityWarning(receivedId, registeredName, receivedName);
@@ -170,7 +203,6 @@ public class RecordsActivity extends AppCompatActivity {
                             }
                         }).start();
                     } catch (Exception e) {
-
                         android.util.Log.d("SERVER", "Socket accept stopped");
                     }
                 }
@@ -179,20 +211,25 @@ public class RecordsActivity extends AppCompatActivity {
             }
         }).start();
 
-        Toast.makeText(this, "تم بدء استقبال حصة: " + currentSessionName, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Attendance Start For : " + currentSessionName, Toast.LENGTH_SHORT).show();
     }
 
-    private void stopServer() {
-        isServerRunning = false;
-        try {
-            if (serverSocket != null) serverSocket.close();
-        } catch (Exception e) { e.printStackTrace(); }
-
-        runOnUiThread(() -> {
-            ivQrCode.setImageBitmap(null);
-            tvIpAddress.setText("IP Address: Stopped");
-            Toast.makeText(this, "تم إيقاف الاستقبال", Toast.LENGTH_SHORT).show();
-        });
+    public void stopServer() {
+        if (isServerRunning) {
+            isServerRunning = false;
+            try {
+                if (serverSocket != null) {
+                    serverSocket.close();
+                }
+                runOnUiThread(() -> {
+                    tvIpAddress.setText("IP: Offline");
+                    ivQrCode.setImageBitmap(null);
+                    Toast.makeText(this, "Attendance Stopped", Toast.LENGTH_SHORT).show();
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private String getIPAddress() {
@@ -271,4 +308,5 @@ public class RecordsActivity extends AppCompatActivity {
         super.onPause();
         stopServer();
     }
+
 }

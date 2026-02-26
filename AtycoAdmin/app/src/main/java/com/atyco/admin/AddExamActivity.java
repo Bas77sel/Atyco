@@ -21,10 +21,10 @@ public class AddExamActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_exam);
 
         myDb = new DatabaseHelper(this);
-        // بنستقبل اسم الحصة اللي هنضيف لها الامتحان
+
         sessionName = getIntent().getStringExtra("SESSION_NAME");
 
-        // تعريف العناصر
+        
         etQuestion = findViewById(R.id.etQuestion);
         etOpA = findViewById(R.id.etOpA);
         etOpB = findViewById(R.id.etOpB);
@@ -38,11 +38,11 @@ public class AddExamActivity extends AppCompatActivity {
         btnAddNext.setOnClickListener(v -> saveQuestionAndClear());
 
         btnFinish.setOnClickListener(v -> {
-            // لو المدرس كتب سؤال ومسيفوش، نسيفه الأول قبل ما نقفل
+
             if (!etQuestion.getText().toString().trim().isEmpty()) {
                 saveQuestionAndClear();
             }
-            finish(); // إغلاق الشاشة والرجوع
+            finish();
         });
     }
 
@@ -53,7 +53,7 @@ public class AddExamActivity extends AppCompatActivity {
         String c = etOpC.getText().toString().trim();
         String d = etOpD.getText().toString().trim();
 
-        // معرفة أي راديو بوتون تم اختياره (A, B, C, or D)
+
         int selectedId = rgOptions.getCheckedRadioButtonId();
         if (qText.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty() || selectedId == -1) {
             Toast.makeText(this, "يرجى إكمال بيانات السؤال واختيار الإجابة الصحيحة", Toast.LENGTH_SHORT).show();
@@ -66,10 +66,10 @@ public class AddExamActivity extends AppCompatActivity {
         else if (selectedId == R.id.rbC) correctAnswer = "C";
         else if (selectedId == R.id.rbD) correctAnswer = "D";
 
-        // حفظ في الداتا بيز باستخدام الدالة اللي عملناها
+
         myDb.addQuestion(sessionName, qText, a, b, c, d, correctAnswer);
 
-        // تنظيف الخانات للسؤال القادم
+
         etQuestion.setText("");
         etOpA.setText("");
         etOpB.setText("");
