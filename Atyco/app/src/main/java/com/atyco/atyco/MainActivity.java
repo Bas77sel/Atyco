@@ -99,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
                 socket.close();
 
                 runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "تم إرسال بيانات الحضور بنجاح ✅", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Attendance send successfully ✅", Toast.LENGTH_LONG).show();
                 });
 
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this, "فشل الاتصال: تأكد من الاتصال بشبكة المعلم ❌", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Make sure you are connected with your Instructor ❌", Toast.LENGTH_LONG).show();
                 });
             }
         }).start();

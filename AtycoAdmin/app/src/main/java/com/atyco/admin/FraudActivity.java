@@ -55,7 +55,7 @@ public class FraudActivity extends AppCompatActivity {
             fraudList.clear();
             fraudList.add("لا توجد محاولات تلاعب حالياً");
             adapter.notifyDataSetChanged();
-            Toast.makeText(this, "تم مسح السجل بنجاح", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "The Cheating History Deleted Successfully", Toast.LENGTH_SHORT).show();
         });
     }
 

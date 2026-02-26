@@ -24,7 +24,7 @@ public class AddExamActivity extends AppCompatActivity {
 
         sessionName = getIntent().getStringExtra("SESSION_NAME");
 
-        
+
         etQuestion = findViewById(R.id.etQuestion);
         etOpA = findViewById(R.id.etOpA);
         etOpB = findViewById(R.id.etOpB);
@@ -56,7 +56,7 @@ public class AddExamActivity extends AppCompatActivity {
 
         int selectedId = rgOptions.getCheckedRadioButtonId();
         if (qText.isEmpty() || a.isEmpty() || b.isEmpty() || c.isEmpty() || d.isEmpty() || selectedId == -1) {
-            Toast.makeText(this, "يرجى إكمال بيانات السؤال واختيار الإجابة الصحيحة", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please , Complete The Question ", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -77,6 +77,6 @@ public class AddExamActivity extends AppCompatActivity {
         etOpD.setText("");
         rgOptions.clearCheck();
 
-        Toast.makeText(this, "تم حفظ السؤال بنجاح", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Question Saved Successfully", Toast.LENGTH_SHORT).show();
     }
 }

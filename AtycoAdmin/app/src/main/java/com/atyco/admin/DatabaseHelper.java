@@ -187,7 +187,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_A"))).append(":::")
                     .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_B"))).append(":::")
                     .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_C"))).append(":::")
-                    .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_D"))).append("###"); // فاصل بين الأسئلة
+                    .append(cursor.getString(cursor.getColumnIndexOrThrow("OP_D"))).append("###");
         }
         cursor.close();
         return sb.toString();
