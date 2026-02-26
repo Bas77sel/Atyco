@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -17,13 +18,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AtycoAdmin">
-        <activity android:name=".FraudActivity"
+        <activity
+            android:name=".AddExamActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FraudActivity"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".SessionsActivity"
+        <activity
+            android:name=".SessionsActivity"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".RecordsActivity"
+        <activity
+            android:name=".RecordsActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
@@ -34,6 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.atyco.admin.fileprovider"

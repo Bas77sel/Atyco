@@ -1,0 +1,80 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F5F5F5">
+
+    <TextView
+        android:id="@+id/tvExamTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="إضافة أسئلة الامتحان"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:textColor="#2196F3"/>
+
+    <EditText
+        android:id="@+id/etQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="اكتب نص السؤال هنا..."
+        android:background="@android:drawable/editbox_background"
+        android:padding="12dp"
+        android:gravity="top"
+        android:lines="3"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="الاختيارات وتحديد الإجابة الصحيحة:"
+        android:layout_marginTop="15dp"
+        android:textStyle="bold"/>
+
+    <RadioGroup
+        android:id="@+id/rgOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <RadioButton android:id="@+id/rbA" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="A"/>
+            <EditText android:id="@+id/etOpA" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="الاختيار الأول"/>
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <RadioButton android:id="@+id/rbB" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="B"/>
+            <EditText android:id="@+id/etOpB" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="الاختيار الثاني"/>
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <RadioButton android:id="@+id/rbC" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="C"/>
+            <EditText android:id="@+id/etOpC" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="الاختيار الثالث"/>
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <RadioButton android:id="@+id/rbD" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="D"/>
+            <EditText android:id="@+id/etOpD" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="الاختيار الرابع"/>
+        </LinearLayout>
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnAddNextQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="حفظ السؤال وإضافة التالي"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"/>
+
+    <Button
+        android:id="@+id/btnFinishExam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="إنهاء وحفظ الامتحان"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="#2196F3"
+        android:textColor="#FFFFFF"/>
+
+</LinearLayout>
