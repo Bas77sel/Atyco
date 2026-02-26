@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "AtycoAdmin.db";
-    private static final int DATABASE_VERSION = 2; // تأكد إنها 2
+    private static final int DATABASE_VERSION = 3;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -21,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE Attendance (" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "DEVICE_ID TEXT, " + // خليناها DEVICE_ID عشان تمشي مع باقي الكود
+                "DEVICE_ID TEXT, " +
                 "STUDENT_NAME TEXT, " +
                 "SESSION_NAME TEXT, " +
                 "TIME_STAMP TEXT)");
@@ -29,6 +29,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE Fraud_Log (DEVICE_ID TEXT, ORIGINAL_NAME TEXT, FAKE_NAME TEXT, SESSION_NAME TEXT)");
 
         db.execSQL("CREATE TABLE Sessions (SESSION_NAME TEXT PRIMARY KEY, CREATED_AT TEXT)");
+
+
+        /*------- الجزء بتاع الامتحانات--------*/
+        db.execSQL("CREATE TABLE Questions (" +
+                "Q_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "SESSION_NAME TEXT, " +
+                "QUESTION_TEXT TEXT, " +
+                "OP_A TEXT, OP_B TEXT, OP_C TEXT, OP_D TEXT, " +
+                "CORRECT_ANSWER TEXT)");
+
+        db.execSQL("CREATE TABLE Exam_Results (" +
+                "R_ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "DEVICE_ID TEXT, " +
+                "STUDENT_NAME TEXT, " +
+                "SESSION_NAME TEXT, " +
+                "SCORE INTEGER, " +
+                "TOTAL_QUESTIONS INTEGER)");
     }
 
     @Override
@@ -40,11 +57,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // --- دالة تسجيل الحضور (تم تعديلها لإضافة الاسم) ---
+
     public void markAttendance(String devId, String session, String time) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        // أولاً: نجيب اسم الطالب المسجل عندنا في جدول Students بناءً على الـ ID بتاعه
+
         String studentName = "Unknown";
         Cursor nameCursor = db.rawQuery("SELECT STUDENT_NAME FROM Students WHERE DEVICE_ID = ?", new String[]{devId});
         if (nameCursor.moveToFirst()) {
@@ -52,13 +69,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         nameCursor.close();
 
-        // ثانياً: نتأكد إنه مسجلش في الحصة دي قبل كدة
+
         Cursor cursor = db.rawQuery("SELECT * FROM Attendance WHERE DEVICE_ID = ? AND SESSION_NAME = ?", new String[]{devId, session});
 
         if (cursor.getCount() == 0) {
             ContentValues cv = new ContentValues();
             cv.put("DEVICE_ID", devId);
-            cv.put("STUDENT_NAME", studentName); // السطر ده هو اللي كان ناقص وبيخلي القائمة فاضية
+            cv.put("STUDENT_NAME", studentName);
             cv.put("SESSION_NAME", session);
             cv.put("TIME_STAMP", time);
             db.insert("Attendance", null, cv);
@@ -85,11 +102,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getStudentsBySession(String session) {
         SQLiteDatabase db = this.getReadableDatabase();
-        // بنسحب الاسم والوقت والـ ID عشان الـ ListView
+
         return db.rawQuery("SELECT ID AS _id, STUDENT_NAME, TIME_STAMP FROM Attendance WHERE SESSION_NAME = ?", new String[]{session});
     }
 
-    // --- باقي الدوال كما هي ---
+
     public void createNewSession(String sessionName, String date) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -125,5 +142,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void clearFraudLog() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM Fraud_Log");
+    }
+
+
+                         /*------- الجزء بتاع الامتحانات--------*/
+    public void addQuestion(String session, String qText, String a, String b, String c, String d, String correct) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("SESSION_NAME", session);
+        cv.put("QUESTION_TEXT", qText);
+        cv.put("OP_A", a);
+        cv.put("OP_B", b);
+        cv.put("OP_C", c);
+        cv.put("OP_D", d);
+        cv.put("CORRECT_ANSWER", correct);
+        db.insert("Questions", null, cv);
+    }
+
+
+    public Cursor getQuestionsForSession(String session) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM Questions WHERE SESSION_NAME = ?", new String[]{session});
+    }
+
+
+    public void saveExamResult(String devId, String name, String session, int score, int total) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put("DEVICE_ID", devId);
+        cv.put("STUDENT_NAME", name);
+        cv.put("SESSION_NAME", session);
+        cv.put("SCORE", score);
+        cv.put("TOTAL_QUESTIONS", total);
+        db.insert("Exam_Results", null, cv);
     }
 }
