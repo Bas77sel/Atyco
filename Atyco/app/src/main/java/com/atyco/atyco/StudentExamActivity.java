@@ -115,7 +115,49 @@ public class StudentExamActivity extends AppCompatActivity {
     }
 
     private void submitExam() {
+        new Thread(() -> {
+            try {
+                StringBuilder answers = new StringBuilder();
+                for (QuestionModel q : questionsList) {
 
-        Toast.makeText(this, "جاري إرسال الإجابات للتصحيح...", Toast.LENGTH_SHORT).show();
+                    answers.append(q.getSelectedAnswer().isEmpty() ? "NONE" : q.getSelectedAnswer()).append(",");
+                }
+
+                String ip = getIntent().getStringExtra("IP");
+                int port = getIntent().getIntExtra("PORT", 8080);
+                String deviceId = android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+
+                java.net.Socket socket = new java.net.Socket(ip, port);
+                java.io.PrintWriter out = new java.io.PrintWriter(socket.getOutputStream(), true);
+                java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(socket.getInputStream()));
+
+
+                out.println("SUBMIT_EXAM|" + deviceId + "|" + answers.toString());
+
+
+                String response = in.readLine();
+
+                socket.close();
+
+                if (response != null && response.startsWith("YOUR_SCORE|")) {
+                    String score = response.split("\\|")[1];
+
+                    runOnUiThread(() -> {
+
+                        new androidx.appcompat.app.AlertDialog.Builder(this)
+                                .setTitle("تم تسليم الامتحان")
+                                .setMessage("إجاباتك وصلت يا بطل!\nدرجتك هي: " + score)
+                                .setCancelable(false)
+                                .setPositiveButton("حسناً", (dialog, which) -> finish())
+                                .show();
+                    });
+                }
+
+            } catch (Exception e) {
+            e.printStackTrace();
+            final String error = e.getMessage();
+            runOnUiThread(() -> Toast.makeText(this, "خطأ: " + error, Toast.LENGTH_LONG).show());
+        }
+        }).start();
     }
 }

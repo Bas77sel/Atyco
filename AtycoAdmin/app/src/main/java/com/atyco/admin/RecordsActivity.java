@@ -141,7 +141,7 @@ public class RecordsActivity extends AppCompatActivity {
 
         String ip = getIPAddress();
         tvIpAddress.setText("IP: " + ip);
-        generateQRCode(ip + ":8080");
+        generateQRCode(ip + ":" + 8080);
 
         final String currentSessionName = this.sessionName;
 
@@ -165,36 +165,53 @@ public class RecordsActivity extends AppCompatActivity {
 
                                 String payload = input.readLine();
 
-                                if (payload != null && payload.contains("|")) {
-                                    String[] data = payload.split("\\|");
-                                    String receivedId = data[0];
-                                    String receivedName = data[1];
+                                if (payload != null) {
 
-                                    String registeredName = myDb.checkOrRegisterStudent(receivedId, receivedName);
-
-                                    if (registeredName.equals(receivedName)) {
-                                        String time = new java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(new java.util.Date());
-                                        myDb.markAttendance(receivedId, currentSessionName, time);
+                                    if (payload.startsWith("SUBMIT_EXAM|")) {
+                                        String[] parts = payload.split("\\|");
+                                        if (parts.length >= 3) {
+                                            String studentId = parts[1];
+                                            String studentAnswers = parts[2];
 
 
-                                        String examData = myDb.getExamJson(currentSessionName);
-                                        if (examData != null && !examData.isEmpty()) {
+                                            String scoreResult = calculateAndSaveScore(studentId, studentAnswers, currentSessionName);
 
-                                            output.println("EXAM|" + examData);
+
+                                            output.println("YOUR_SCORE|" + scoreResult);
+                                        }
+                                    }
+
+                                    else if (payload.contains("|")) {
+                                        String[] data = payload.split("\\|");
+                                        String receivedId = data[0];
+                                        String receivedName = data[1];
+
+
+                                        String registeredName = myDb.checkOrRegisterStudent(receivedId, receivedName);
+
+                                        if (registeredName.equals(receivedName)) {
+
+                                            String time = new java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(new java.util.Date());
+                                            myDb.markAttendance(receivedId, currentSessionName, time);
+
+
+                                            String examData = myDb.getExamJson(currentSessionName);
+                                            if (examData != null && !examData.isEmpty()) {
+                                                output.println("EXAM|" + examData);
+                                            } else {
+                                                output.println("SUCCESS");
+                                            }
+
+                                            runOnUiThread(() -> {
+                                                Toast.makeText(this, "✅ تم تسجيل: " + registeredName, Toast.LENGTH_SHORT).show();
+                                                refreshList();
+                                            });
                                         } else {
 
-                                            output.println("SUCCESS");
+                                            output.println("FRAUD_DETECTED");
+                                            myDb.logFraud(receivedId, registeredName, receivedName, currentSessionName);
+                                            showSecurityWarning(receivedId, registeredName, receivedName);
                                         }
-
-
-                                        runOnUiThread(() -> {
-                                            Toast.makeText(this, "✅ تم تسجيل: " + registeredName, Toast.LENGTH_SHORT).show();
-                                            refreshList();
-                                        });
-                                    } else {
-                                        output.println("FRAUD_DETECTED");
-                                        myDb.logFraud(receivedId, registeredName, receivedName, currentSessionName);
-                                        showSecurityWarning(receivedId, registeredName, receivedName);
                                     }
                                 }
                                 clientSocket.close();
@@ -211,7 +228,7 @@ public class RecordsActivity extends AppCompatActivity {
             }
         }).start();
 
-        Toast.makeText(this, "Attendance Start For : " + currentSessionName, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Attendance Start For: " + currentSessionName, Toast.LENGTH_SHORT).show();
     }
 
     public void stopServer() {
@@ -309,4 +326,31 @@ public class RecordsActivity extends AppCompatActivity {
         stopServer();
     }
 
+    private String calculateAndSaveScore(String studentId, String studentAnswers, String sessionName) {
+        String[] answersArray = studentAnswers.split(",");
+
+
+        Cursor cursor = myDb.getQuestionsForSession(sessionName);
+
+        int score = 0;
+        int total = 0;
+
+        if (cursor != null) {
+            total = cursor.getCount();
+            int i = 0;
+            while (cursor.moveToNext() && i < answersArray.length) {
+                String correctAnswer = cursor.getString(cursor.getColumnIndexOrThrow("CORRECT_ANSWER"));
+                if (correctAnswer.trim().equalsIgnoreCase(answersArray[i].trim())) {
+                    score++;
+                }
+                i++;
+            }
+            cursor.close();
+        }
+
+        String studentName = myDb.getStudentNameById(studentId);
+        myDb.saveExamResult(studentId, studentName, sessionName, score, total);
+
+        return score + "/" + total;
+    }
 }

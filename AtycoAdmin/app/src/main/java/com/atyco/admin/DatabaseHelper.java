@@ -200,4 +200,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return exists;
     }
+    public String getStudentNameById(String deviceId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT STUDENT_NAME FROM Students WHERE DEVICE_ID = ? LIMIT 1", new String[]{deviceId});
+
+        String name = "Unknown";
+        if (cursor.moveToFirst()) {
+            name = cursor.getString(0);
+        }
+        cursor.close();
+        return name;
+    }
 }
