@@ -326,16 +326,5 @@ public class RecordsActivity extends AppCompatActivity {
         super.onDestroy();
         stopServer();
     }
-    private String getCurrentSsid(Context context) {
-        android.net.wifi.WifiManager wifiManager = (android.net.wifi.WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        android.net.wifi.WifiInfo info = wifiManager.getConnectionInfo();
-        if (info != null) {
-            String ssid = info.getSSID();
-            if (ssid.equals("<unknown ssid>")) {
-                return null;
-            }
-            return ssid.replace("\"", "");
-        }
-        return null;
-    }
+
 }

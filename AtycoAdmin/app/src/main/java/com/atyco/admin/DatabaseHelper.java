@@ -86,7 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getStudentsBySession(String session) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        return db.rawQuery("SELECT ID AS _id, STUDENT_NAME, TIME_STAMP FROM Attendance WHERE SESSION_NAME = ?", new String[]{session});
+        return db.rawQuery("SELECT ID AS _id, STUDENT_NAME, TIME_STAMP FROM Attendance WHERE SESSION_NAME = ? ORDER BY ID DESC", new String[]{session});
     }
 
 
@@ -125,5 +125,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void clearFraudLog() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM Fraud_Log");
+    }
+
+    public void approveStudentName(String deviceId, String newName, String sessionId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+
+        ContentValues studentValues = new ContentValues();
+        studentValues.put("STUDENT_NAME", newName);
+        db.update("Students", studentValues, "DEVICE_ID = ?", new String[]{deviceId});
+
+
+        ContentValues attendanceValues = new ContentValues();
+        attendanceValues.put("STUDENT_NAME", newName);
+
+
+        db.update("Attendance", attendanceValues, "DEVICE_ID = ? AND SESSION_NAME = ?",
+                new String[]{deviceId, sessionId});
+
+
+        db.delete("Fraud_Log", "DEVICE_ID = ? AND SESSION_NAME = ?", new String[]{deviceId, sessionId});
     }
 }
